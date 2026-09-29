@@ -11,7 +11,7 @@ import java.util.List;
 public class ApplicantController {
     private final ApplicantService applicantService;
 
-    public ApplicantController(@RequestBody ApplicantService applicantService) {
+    public ApplicantController(ApplicantService applicantService) {
         this.applicantService = applicantService;
     }
     //Creating Applicant

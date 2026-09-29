@@ -15,10 +15,6 @@ public class ScoreFactorService {
         this.scoreFactorRepository = scoreFactorRepository;
     }
 
-    // Create
-    public ScoreFactor createScoreFactor(ScoreFactor scoreFactor) {
-        return scoreFactorRepository.save(scoreFactor);
-    }
 
     // Get All
     public List<ScoreFactor> getAllScoreFactors() {

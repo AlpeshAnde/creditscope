@@ -14,17 +14,6 @@ public class RepaymentHistoryService {
     public RepaymentHistoryService(RepaymentHistoryRepository repaymentHistoryRepository) {
         this.repaymentHistoryRepository = repaymentHistoryRepository;
     }
-
-    // Create
-    public RepaymentHistory createRepaymentHistory(RepaymentHistory repaymentHistory) {
-        return repaymentHistoryRepository.save(repaymentHistory);
-    }
-
-    // Delete
-    public void deleteRepaymentHistory(Long id) {
-        repaymentHistoryRepository.deleteById(id);
-    }
-
     // Get All
     public List<RepaymentHistory> getAllRepaymentHistories() {
         return repaymentHistoryRepository.findAll();
@@ -35,9 +24,10 @@ public class RepaymentHistoryService {
         return repaymentHistoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("RepaymentHistory not found with id: " + id));
     }
-
-    // Update
-    public RepaymentHistory updateRepaymentHistory(RepaymentHistory repaymentHistory) {
+    //Crate repayment History
+    public RepaymentHistory createRepaymentHistory(RepaymentHistory repaymentHistory) {
         return repaymentHistoryRepository.save(repaymentHistory);
     }
+
+
 }
