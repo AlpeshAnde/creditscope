@@ -1,10 +1,12 @@
 package com.alpesh.creditscope.service;
 
+import com.alpesh.creditscope.dto.CreditScoreResultResponseDTO;
 import com.alpesh.creditscope.entity.CreditScoreResult;
 import com.alpesh.creditscope.repository.CreditScoreResultRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CreditScoreResultService {
@@ -15,19 +17,35 @@ public class CreditScoreResultService {
         this.creditScoreResultRepository = creditScoreResultRepository;
     }
 
-    // Create credit score result
-    public CreditScoreResult createCreditScoreResult(CreditScoreResult savecreditScoreResult) {
-        return creditScoreResultRepository.save(savecreditScoreResult);
+    private CreditScoreResultResponseDTO toDTO(CreditScoreResult result) {
+        return new CreditScoreResultResponseDTO(
+                result.getId(),
+                result.getApplication() != null ? result.getApplication().getId() : null,
+                result.getTotalScore(),
+                result.getRiskBand(),
+                result.getComputedAt()
+        );
     }
 
-    // Get credit score result by id
-    public CreditScoreResult getCreditScoreResult(Long id) {
-        return creditScoreResultRepository.findById(id)
+    public CreditScoreResultResponseDTO createCreditScoreResult(CreditScoreResult creditScoreResult) {
+        CreditScoreResult saved = creditScoreResultRepository.save(creditScoreResult);
+        return toDTO(saved);
+    }
+
+    public CreditScoreResultResponseDTO getCreditScoreResult(Long id) {
+        CreditScoreResult result = creditScoreResultRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Credit Score Result not found with id: " + id));
+        return toDTO(result);
     }
 
-    // Update credit score result
-    public CreditScoreResult updateCreditScoreResult(Long id, CreditScoreResult updatedCreditScoreResult) {
+    public List<CreditScoreResultResponseDTO> getAllCreditScoreResults() {
+        return creditScoreResultRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public CreditScoreResultResponseDTO updateCreditScoreResult(Long id, CreditScoreResult updatedCreditScoreResult) {
         CreditScoreResult existing = creditScoreResultRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Credit Score Result not found with id: " + id));
 
@@ -35,18 +53,14 @@ public class CreditScoreResultService {
         existing.setTotalScore(updatedCreditScoreResult.getTotalScore());
         existing.setComputedAt(updatedCreditScoreResult.getComputedAt());
         existing.setRiskBand(updatedCreditScoreResult.getRiskBand());
-        return creditScoreResultRepository.save(existing);
+        CreditScoreResult saved = creditScoreResultRepository.save(existing);
+        return toDTO(saved);
     }
 
-    // Delete credit score result
     public void deleteCreditScoreResult(Long id) {
         if (!creditScoreResultRepository.existsById(id)) {
             throw new RuntimeException("Credit Score Result not found with id: " + id);
         }
         creditScoreResultRepository.deleteById(id);
-    }
-    //Get all Credit Score
-    public List<CreditScoreResult> getAllCreditScoreResults() {
-        return creditScoreResultRepository.findAll();
     }
 }

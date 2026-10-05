@@ -1,5 +1,6 @@
 package com.alpesh.creditscope.controller;
 
+import com.alpesh.creditscope.dto.RepaymentHistoryResponseDTO;
 import com.alpesh.creditscope.entity.RepaymentHistory;
 import com.alpesh.creditscope.service.RepaymentHistoryService;
 import org.springframework.web.bind.annotation.*;
@@ -14,22 +15,19 @@ public class RepaymentHistoryController {
     public RepaymentHistoryController(RepaymentHistoryService repaymentHistoryService) {
         this.repaymentHistoryService = repaymentHistoryService;
     }
-    //Get All History
+
     @GetMapping
-    public List<RepaymentHistory> getAllRepaymentHistories()
-    {
+    public List<RepaymentHistoryResponseDTO> getAllRepaymentHistories() {
         return repaymentHistoryService.getAllRepaymentHistories();
     }
-   //Get History by id
+
     @GetMapping("/{id}")
-    public  RepaymentHistory getRepaymentHistoryById(@PathVariable long id)
-    {
+    public RepaymentHistoryResponseDTO getRepaymentHistoryById(@PathVariable Long id) {
         return repaymentHistoryService.getRepaymentHistoryById(id);
     }
-    //Create repayment History
+
     @PostMapping
-    public RepaymentHistory createRepaymentHistory(@RequestBody RepaymentHistory repaymentHistory){
+    public RepaymentHistoryResponseDTO createRepaymentHistory(@RequestBody RepaymentHistory repaymentHistory) {
         return repaymentHistoryService.createRepaymentHistory(repaymentHistory);
     }
-
 }

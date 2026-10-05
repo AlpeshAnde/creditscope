@@ -1,8 +1,12 @@
 package com.alpesh.creditscope.service;
 
+import com.alpesh.creditscope.dto.ExistingLoanResponseDTO;
 import com.alpesh.creditscope.entity.ExistingLoan;
 import com.alpesh.creditscope.repository.ExistingLoanRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExistingLoanService {
@@ -13,19 +17,36 @@ public class ExistingLoanService {
         this.existingLoanRepository = existingLoanRepository;
     }
 
-    // Create an existing loan
-    public ExistingLoan createExistingLoan(ExistingLoan existingLoan) {
-        return existingLoanRepository.save(existingLoan);
+    private ExistingLoanResponseDTO toDTO(ExistingLoan loan) {
+        return new ExistingLoanResponseDTO(
+                loan.getId(),
+                loan.getApplicant() != null ? loan.getApplicant().getId() : null,
+                loan.getLender(),
+                loan.getOutstandingAmount(),
+                loan.getEmiAmount(),
+                loan.isDefaulted()
+        );
     }
 
-    // Get existing loan by id
-    public ExistingLoan getExistingLoan(Long id) {
-        return existingLoanRepository.findById(id)
+    public ExistingLoanResponseDTO createExistingLoan(ExistingLoan existingLoan) {
+        ExistingLoan saved = existingLoanRepository.save(existingLoan);
+        return toDTO(saved);
+    }
+
+    public ExistingLoanResponseDTO getExistingLoan(Long id) {
+        ExistingLoan loan = existingLoanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Existing Loan not found with id: " + id));
+        return toDTO(loan);
     }
 
-    // Update existing loan
-    public ExistingLoan updateExistingLoan(Long id, ExistingLoan updatedExistingLoan) {
+    public List<ExistingLoanResponseDTO> getAllExistingLoans() {
+        return existingLoanRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public ExistingLoanResponseDTO updateExistingLoan(Long id, ExistingLoan updatedExistingLoan) {
         ExistingLoan existingLoan = existingLoanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Existing Loan not found with id: " + id));
 
@@ -33,10 +54,11 @@ public class ExistingLoanService {
         existingLoan.setDefaulted(updatedExistingLoan.isDefaulted());
         existingLoan.setOutstandingAmount(updatedExistingLoan.getOutstandingAmount());
         existingLoan.setLender(updatedExistingLoan.getLender());
-        return existingLoanRepository.save(existingLoan);
+        existingLoan.setEmiAmount(updatedExistingLoan.getEmiAmount());
+        ExistingLoan saved = existingLoanRepository.save(existingLoan);
+        return toDTO(saved);
     }
 
-    // Delete existing loan
     public void deleteExistingLoan(Long id) {
         if (!existingLoanRepository.existsById(id)) {
             throw new RuntimeException("Existing Loan not found with id: " + id);

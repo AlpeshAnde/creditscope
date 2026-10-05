@@ -1,11 +1,13 @@
 package com.alpesh.creditscope.service;
 
+import com.alpesh.creditscope.dto.UserResponseDTO;
 import com.alpesh.creditscope.entity.User;
 import com.alpesh.creditscope.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -18,13 +20,16 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Create user (password is hashed before saving)
-    public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    private UserResponseDTO toDTO(User user) {
+        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getRole());
     }
 
-    // Delete user
+    public UserResponseDTO createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User saved = userRepository.save(user);
+        return toDTO(saved);
+    }
+
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("User not found with id: " + id);
@@ -32,19 +37,20 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    // Get all users
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // Get user by id
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
+    public UserResponseDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        return toDTO(user);
     }
 
-    // Update user
-    public User updateUser(Long id, User updatedUser) {
+    public UserResponseDTO updateUser(Long id, User updatedUser) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -52,10 +58,10 @@ public class UserService {
         existingUser.setEmail(updatedUser.getEmail());
         existingUser.setRole(updatedUser.getRole());
 
-        // Only re-hash if a new password was actually supplied
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()) {
             existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         }
-        return userRepository.save(existingUser);
+        User saved = userRepository.save(existingUser);
+        return toDTO(saved);
     }
 }

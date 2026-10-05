@@ -1,11 +1,8 @@
 package com.alpesh.creditscope.controller;
 
-import com.alpesh.creditscope.entity.ScoreFactor;
+import com.alpesh.creditscope.dto.ScoreFactorResponseDTO;
 import com.alpesh.creditscope.service.ScoreFactorService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,15 +14,14 @@ public class ScoreFactorController {
     public ScoreFactorController(ScoreFactorService scoreFactorService) {
         this.scoreFactorService = scoreFactorService;
     }
-    //Getting All Score Factors
+
     @GetMapping
-    public List<ScoreFactor> getAllScoreFactors() {
+    public List<ScoreFactorResponseDTO> getAllScoreFactors() {
         return scoreFactorService.getAllScoreFactors();
     }
 
-    //Getting Score Factor by id
     @GetMapping("/{id}")
-    public ScoreFactor getScoreFactorById(@PathVariable Long id) {
+    public ScoreFactorResponseDTO getScoreFactorById(@PathVariable Long id) {
         return scoreFactorService.getScoreFactorById(id);
     }
 }

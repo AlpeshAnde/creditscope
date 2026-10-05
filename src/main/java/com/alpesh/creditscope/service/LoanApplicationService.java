@@ -1,8 +1,12 @@
 package com.alpesh.creditscope.service;
 
+import com.alpesh.creditscope.dto.LoanApplicationResponseDTO;
 import com.alpesh.creditscope.entity.LoanApplication;
 import com.alpesh.creditscope.repository.LoanApplicationRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LoanApplicationService {
@@ -13,19 +17,37 @@ public class LoanApplicationService {
         this.loanApplicationRepository = loanApplicationRepository;
     }
 
-    // Create loan application
-    public LoanApplication createLoanApplication(LoanApplication loanApplication) {
-        return loanApplicationRepository.save(loanApplication);
+    private LoanApplicationResponseDTO toDTO(LoanApplication loan) {
+        return new LoanApplicationResponseDTO(
+                loan.getId(),
+                loan.getApplicant() != null ? loan.getApplicant().getId() : null,
+                loan.getLoanAmount(),
+                loan.getLoanType(),
+                loan.getTenureMonths(),
+                loan.getAppliedAt(),
+                loan.getStatus()
+        );
     }
 
-    // Get loan application by id
-    public LoanApplication getLoanApplicationById(Long id) {
-        return loanApplicationRepository.findById(id)
+    public LoanApplicationResponseDTO createLoanApplication(LoanApplication loanApplication) {
+        LoanApplication saved = loanApplicationRepository.save(loanApplication);
+        return toDTO(saved);
+    }
+
+    public LoanApplicationResponseDTO getLoanApplicationById(Long id) {
+        LoanApplication loan = loanApplicationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Loan Application not found with id: " + id));
+        return toDTO(loan);
     }
 
-    // Update loan application
-    public LoanApplication updateLoanApplication(Long id, LoanApplication updatedLoanApplication) {
+    public List<LoanApplicationResponseDTO> getAllLoanApplications() {
+        return loanApplicationRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public LoanApplicationResponseDTO updateLoanApplication(Long id, LoanApplication updatedLoanApplication) {
         LoanApplication existingLoanApplication = loanApplicationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Loan Application not found with id: " + id));
 
@@ -33,10 +55,10 @@ public class LoanApplicationService {
         existingLoanApplication.setLoanType(updatedLoanApplication.getLoanType());
         existingLoanApplication.setTenureMonths(updatedLoanApplication.getTenureMonths());
         existingLoanApplication.setAppliedAt(updatedLoanApplication.getAppliedAt());
-        return loanApplicationRepository.save(existingLoanApplication);
+        LoanApplication saved = loanApplicationRepository.save(existingLoanApplication);
+        return toDTO(saved);
     }
 
-    // Delete loan application
     public void deleteLoanApplication(Long id) {
         if (!loanApplicationRepository.existsById(id)) {
             throw new RuntimeException("Loan Application not found with id: " + id);
