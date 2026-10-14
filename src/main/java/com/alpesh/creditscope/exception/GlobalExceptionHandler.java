@@ -34,4 +34,12 @@ public class GlobalExceptionHandler {
                 "status", status.value(),
                 "message", message == null ? "Unexpected error" : message));
     }
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(
+            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .findFirst().orElse("Invalid request");
+        return build(HttpStatus.BAD_REQUEST, message);
+    }
 }
