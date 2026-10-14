@@ -5,6 +5,9 @@ import com.alpesh.creditscope.entity.CreditScoreResult;
 import com.alpesh.creditscope.service.CreditScoreResultService;
 import com.alpesh.creditscope.service.CreditScoreService;
 import org.springframework.web.bind.annotation.*;
+import com.alpesh.creditscope.repository.LoanApplicationRepository;
+import com.alpesh.creditscope.entity.LoanApplication;
+import java.util.Map;
 
 import java.util.List;
 
@@ -13,11 +16,14 @@ import java.util.List;
 public class CreditScoreResultController {
     private final CreditScoreResultService creditScoreResultService;
     private final CreditScoreService creditScoreService;
+    private final LoanApplicationRepository loanApplicationRepository;
 
     public CreditScoreResultController(CreditScoreResultService creditScoreResultService,
-                                       CreditScoreService creditScoreService) {
+                                       CreditScoreService creditScoreService,
+                                       LoanApplicationRepository loanApplicationRepository) {
         this.creditScoreResultService = creditScoreResultService;
         this.creditScoreService = creditScoreService;
+        this.loanApplicationRepository = loanApplicationRepository;
     }
 
     // Runs the scoring engine for a loan application and returns the saved result as a DTO
@@ -50,5 +56,16 @@ public class CreditScoreResultController {
     @GetMapping
     public List<CreditScoreResultResponseDTO> getAllCreditScoreResults() {
         return creditScoreResultService.getAllCreditScoreResults();
+    }
+
+    // Scores every loan application that does not have a score yet
+    @PostMapping("/calculate-all")
+    public Map<String, Object> calculateAll() {
+        int scored = 0;
+        for (LoanApplication app : loanApplicationRepository.findAll()) {
+            creditScoreService.calculateScore(app.getId());
+            scored++;
+        }
+        return Map.of("scoredApplications", scored);
     }
 }
