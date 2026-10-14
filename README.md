@@ -52,6 +52,7 @@ The scoring logic sits in its own service (`CreditScoreService`) so it can be sp
 | GET | `/api/reports/risk-distribution` | Count and % per risk band |
 | GET | `/api/reports/top-risk-by-employment-type` | Three riskiest applicants per employment type |
 | GET | `/api/reports/default-trend` | Monthly missed payments with a 3-month moving average |
+| POST | `/api/auth/register` | Create an account (role is always APPLICANT) and get a JWT |
 
 Send the token as `Authorization: Bearer <token>`.
 Errors return JSON with the right status: 401 bad credentials, 409 duplicate data, 400 invalid request.
